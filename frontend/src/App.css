@@ -1,0 +1,73 @@
+.container {
+  text-align: center;
+  font-family: Arial;
+  background: #f5f7fa;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+h1 {
+  color: #333;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(10, 50px);
+  gap: 12px;
+  justify-content: center;
+  margin-top: 30px;
+}
+
+.seat {
+  width: 50px;
+  height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  border-radius: 10px;
+  color: white;
+  font-weight: bold;
+  transition: 0.2s;
+}
+
+.available {
+  background-color: #2ecc71;
+}
+
+.available:hover {
+  transform: scale(1.1);
+}
+
+.booked {
+  background-color: #e74c3c;
+}
+
+.form {
+  margin-top: 25px;
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  width: 300px;
+  margin-left: auto;
+  margin-right: auto;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+input {
+  display: block;
+  margin: 10px auto;
+  padding: 10px;
+  width: 90%;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+button {
+  padding: 10px 20px;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+}
