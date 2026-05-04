@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import "./App.css";
 
 const API_URL = "https://ved-library.onrender.com";
 
@@ -10,7 +9,6 @@ function UserUI() {
   const [formData, setFormData] = useState({ name: "", phone: "" });
   const [loading, setLoading] = useState(false);
 
-  // Load seats
   useEffect(() => {
     axios.get(`${API_URL}/api/bookings/`)
       .then(res => {
@@ -22,24 +20,11 @@ function UserUI() {
         }));
 
         setSeats(allSeats);
-      })
-      .catch(err => console.error(err));
+      });
   }, []);
-
-  const handleSeatClick = (seat) => {
-    if (!seat.booked) {
-      setSelectedSeat(seat);
-    }
-  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    if (!formData.name || !formData.phone) {
-      alert("Please fill all fields");
-      return;
-    }
-
     setLoading(true);
 
     axios.post(`${API_URL}/api/book/`, {
@@ -62,48 +47,36 @@ function UserUI() {
   };
 
   return (
-    <div className="user-container">
+    <div className="max-w-5xl mx-auto">
 
-      {/* Header */}
-      <div className="user-header">
-        <h2>📚 Ved Library Booking</h2>
-        <p>Choose your seat and book instantly</p>
-      </div>
+      <h1 className="text-3xl font-bold text-center mb-5">
+        📚 Seat Booking
+      </h1>
 
-      {/* Stats */}
-      <div className="user-stats">
-        <div className="stat-card">
-          <h3>Total Seats</h3>
-          <p>100</p>
-        </div>
-        <div className="stat-card booked">
-          <h3>Booked</h3>
-          <p>{seats.filter(s => s.booked).length}</p>
-        </div>
-      </div>
-
-      {/* Seat Grid */}
-      <div className="grid">
+      <div className="grid grid-cols-10 gap-2 justify-center">
         {seats.map(seat => (
           <div
             key={seat.id}
-            className={`seat ${seat.booked ? "booked" : "available"}`}
-            onClick={() => handleSeatClick(seat)}
+            onClick={() => !seat.booked && setSelectedSeat(seat)}
+            className={`w-10 h-10 flex items-center justify-center rounded text-white cursor-pointer
+            ${seat.booked ? "bg-red-500" : "bg-green-500 hover:bg-green-600"}`}
           >
             {seat.id}
           </div>
         ))}
       </div>
 
-      {/* Booking Form */}
       {selectedSeat && (
-        <div className="form-card">
-          <h3>Book Seat {selectedSeat.id}</h3>
+        <div className="mt-6 bg-white shadow p-5 rounded text-center">
 
-          <form onSubmit={handleSubmit}>
+          <h2 className="text-xl font-semibold mb-3">
+            Book Seat {selectedSeat.id}
+          </h2>
+
+          <form onSubmit={handleSubmit} className="space-y-3">
             <input
-              type="text"
-              placeholder="Enter Name"
+              className="border p-2 w-full rounded"
+              placeholder="Name"
               value={formData.name}
               onChange={(e) =>
                 setFormData({ ...formData, name: e.target.value })
@@ -111,18 +84,19 @@ function UserUI() {
             />
 
             <input
-              type="text"
-              placeholder="Enter Phone"
+              className="border p-2 w-full rounded"
+              placeholder="Phone"
               value={formData.phone}
               onChange={(e) =>
                 setFormData({ ...formData, phone: e.target.value })
               }
             />
 
-            <button type="submit" disabled={loading}>
-              {loading ? "Booking..." : "Confirm Booking"}
+            <button className="bg-blue-500 text-white px-4 py-2 rounded w-full">
+              {loading ? "Booking..." : "Confirm"}
             </button>
           </form>
+
         </div>
       )}
 

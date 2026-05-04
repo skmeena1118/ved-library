@@ -13,20 +13,30 @@ function Login({ onLogin }) {
   };
 
   return (
-    <div style={{ textAlign: "center", marginTop: "50px" }}>
-      <h2>Admin Login</h2>
+    <div className="max-w-sm mx-auto bg-white p-5 shadow rounded">
+
+      <h2 className="text-xl mb-3">Admin Login</h2>
+
       <input
+        className="border p-2 w-full mb-2"
         placeholder="Username"
         onChange={(e) => setUsername(e.target.value)}
       />
-      <br />
+
       <input
         type="password"
+        className="border p-2 w-full mb-3"
         placeholder="Password"
         onChange={(e) => setPassword(e.target.value)}
       />
-      <br />
-      <button onClick={handleLogin}>Login</button>
+
+      <button
+        className="bg-blue-500 text-white w-full py-2 rounded"
+        onClick={handleLogin}
+      >
+        Login
+      </button>
+
     </div>
   );
 }

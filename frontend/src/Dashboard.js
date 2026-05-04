@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import "./App.css";
 
 const API_URL = "https://ved-library.onrender.com";
 
@@ -9,64 +8,46 @@ function Dashboard() {
 
   useEffect(() => {
     axios.get(`${API_URL}/api/bookings/`)
-      .then(res => setBookings(res.data))
-      .catch(err => console.error(err));
+      .then(res => setBookings(res.data));
   }, []);
-
-  const totalSeats = 100;
-  const bookedSeats = bookings.length;
-  const availableSeats = totalSeats - bookedSeats;
 
   const handleDelete = (seat) => {
     axios.delete(`${API_URL}/api/delete/${seat}/`)
       .then(() => {
         setBookings(bookings.filter(b => b.seat !== seat));
-      })
-      .catch(err => console.error(err));
+      });
   };
 
   return (
-    <div className="dashboard">
+    <div className="max-w-4xl mx-auto">
 
-      <h2>Admin Dashboard</h2>
+      <h1 className="text-2xl font-bold mb-4">Admin Dashboard</h1>
 
-      {/* Stats Cards */}
-      <div className="stats">
-        <div className="card total">
-          <h3>Total</h3>
-          <p>{totalSeats}</p>
+      <div className="grid grid-cols-3 gap-4 mb-5">
+        <div className="bg-blue-500 text-white p-4 rounded">
+          Total: 100
         </div>
-
-        <div className="card booked">
-          <h3>Booked</h3>
-          <p>{bookedSeats}</p>
+        <div className="bg-red-500 text-white p-4 rounded">
+          Booked: {bookings.length}
         </div>
-
-        <div className="card available">
-          <h3>Available</h3>
-          <p>{availableSeats}</p>
+        <div className="bg-green-500 text-white p-4 rounded">
+          Available: {100 - bookings.length}
         </div>
       </div>
 
-      {/* Booking List */}
-      <div className="booking-list">
-        <h3>Bookings</h3>
-
-        {bookings.length === 0 ? (
-          <p>No bookings yet</p>
-        ) : (
-          <ul>
-            {bookings.map((b, i) => (
-              <li key={i}>
-                Seat {b.seat}
-                <button onClick={() => handleDelete(b.seat)}>
-                  Delete
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
+      <ul className="space-y-2">
+        {bookings.map((b, i) => (
+          <li key={i} className="flex justify-between bg-gray-100 p-3 rounded">
+            Seat {b.seat}
+            <button
+              onClick={() => handleDelete(b.seat)}
+              className="bg-red-500 text-white px-2 rounded"
+            >
+              Delete
+            </button>
+          </li>
+        ))}
+      </ul>
 
     </div>
   );
