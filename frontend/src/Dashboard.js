@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import "./App.css";
 
-// 👉 ADD THIS (your live backend URL)
 const API_URL = "https://ved-library.onrender.com";
 
 function Dashboard() {
@@ -10,7 +10,7 @@ function Dashboard() {
   useEffect(() => {
     axios.get(`${API_URL}/api/bookings/`)
       .then(res => setBookings(res.data))
-      .catch(err => console.error("Error:", err));
+      .catch(err => console.error(err));
   }, []);
 
   const totalSeats = 100;
@@ -22,31 +22,52 @@ function Dashboard() {
       .then(() => {
         setBookings(bookings.filter(b => b.seat !== seat));
       })
-      .catch(err => console.error("Delete error:", err));
+      .catch(err => console.error(err));
   };
 
   return (
-    <div>
-      <h1>Admin Dashboard</h1>
+    <div className="dashboard">
 
-      <p>Total Seats: {totalSeats}</p>
-      <p>Booked Seats: {bookedSeats}</p>
-      <p>Available Seats: {availableSeats}</p>
+      <h2>Admin Dashboard</h2>
 
-      <h3>Bookings:</h3>
-      <ul>
-        {bookings.map((b, i) => (
-          <li key={i}>
-            Seat {b.seat}
-            <button
-              style={{ marginLeft: "10px", color: "red" }}
-              onClick={() => handleDelete(b.seat)}
-            >
-              Delete
-            </button>
-          </li>
-        ))}
-      </ul>
+      {/* Stats Cards */}
+      <div className="stats">
+        <div className="card total">
+          <h3>Total</h3>
+          <p>{totalSeats}</p>
+        </div>
+
+        <div className="card booked">
+          <h3>Booked</h3>
+          <p>{bookedSeats}</p>
+        </div>
+
+        <div className="card available">
+          <h3>Available</h3>
+          <p>{availableSeats}</p>
+        </div>
+      </div>
+
+      {/* Booking List */}
+      <div className="booking-list">
+        <h3>Bookings</h3>
+
+        {bookings.length === 0 ? (
+          <p>No bookings yet</p>
+        ) : (
+          <ul>
+            {bookings.map((b, i) => (
+              <li key={i}>
+                Seat {b.seat}
+                <button onClick={() => handleDelete(b.seat)}>
+                  Delete
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
     </div>
   );
 }

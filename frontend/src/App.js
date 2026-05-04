@@ -2,30 +2,39 @@ import React, { useState } from "react";
 import UserUI from "./UserUI";
 import Dashboard from "./Dashboard";
 import Login from "./Login";
+import "./App.css";
 
 function App() {
   const [view, setView] = useState("user");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   return (
-    <div style={{ textAlign: "center" }}>
-      <h1>Ved Library System</h1>
+    <div className="app">
+      {/* Navbar */}
+      <div className="navbar">
+        <h2>Ved Library</h2>
+        <div>
+          <button onClick={() => setView("user")}>User</button>
+          <button onClick={() => setView("admin")}>Admin</button>
+        </div>
+      </div>
 
-      <button onClick={() => setView("user")}>User</button>
-      <button onClick={() => setView("admin")}>Admin</button>
+      <div className="content">
+        {view === "user" && <UserUI />}
 
-      {view === "user" && <UserUI />}
-
-      {view === "admin" && (
-        isLoggedIn ? (
-          <div>
-            <button onClick={() => setIsLoggedIn(false)}>Logout</button>
-            <Dashboard />
-          </div>
-        ) : (
-          <Login onLogin={() => setIsLoggedIn(true)} />
-        )
-      )}
+        {view === "admin" && (
+          isLoggedIn ? (
+            <div>
+              <button className="logout" onClick={() => setIsLoggedIn(false)}>
+                Logout
+              </button>
+              <Dashboard />
+            </div>
+          ) : (
+            <Login onLogin={() => setIsLoggedIn(true)} />
+          )
+        )}
+      </div>
     </div>
   );
 }
