@@ -1,5 +1,15 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  ResponsiveContainer,
+  Legend
+} from "recharts";
+
+import "./App.css";
 
 const API_URL = "https://ved-library.onrender.com";
 
@@ -11,6 +21,18 @@ function Dashboard() {
       .then(res => setBookings(res.data));
   }, []);
 
+  const totalSeats = 100;
+  const bookedSeats = bookings.length;
+  const availableSeats = totalSeats - bookedSeats;
+  const revenue = bookedSeats * 100;
+
+  const chartData = [
+    { name: "Booked", value: bookedSeats },
+    { name: "Available", value: availableSeats }
+  ];
+
+  const COLORS = ["#ef4444", "#22c55e"];
+
   const handleDelete = (seat) => {
     axios.delete(`${API_URL}/api/delete/${seat}/`)
       .then(() => {
@@ -19,35 +41,72 @@ function Dashboard() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="dashboard">
 
-      <h1 className="text-2xl font-bold mb-4">Admin Dashboard</h1>
+      <div className="cards">
 
-      <div className="grid grid-cols-3 gap-4 mb-5">
-        <div className="bg-blue-500 text-white p-4 rounded">
-          Total: 100
+        <div className="card blue">
+          <h2>Total Seats</h2>
+          <h1>{totalSeats}</h1>
         </div>
-        <div className="bg-red-500 text-white p-4 rounded">
-          Booked: {bookings.length}
+
+        <div className="card red">
+          <h2>Booked</h2>
+          <h1>{bookedSeats}</h1>
         </div>
-        <div className="bg-green-500 text-white p-4 rounded">
-          Available: {100 - bookings.length}
+
+        <div className="card green">
+          <h2>Revenue</h2>
+          <h1>₹ {revenue}</h1>
         </div>
+
       </div>
 
-      <ul className="space-y-2">
-        {bookings.map((b, i) => (
-          <li key={i} className="flex justify-between bg-gray-100 p-3 rounded">
-            Seat {b.seat}
-            <button
-              onClick={() => handleDelete(b.seat)}
-              className="bg-red-500 text-white px-2 rounded"
+      <div className="chart-box">
+        <h2>Seat Analytics</h2>
+
+        <ResponsiveContainer width="100%" height={300}>
+          <PieChart>
+            <Pie
+              data={chartData}
+              dataKey="value"
+              outerRadius={100}
+              label
             >
+              {chartData.map((entry, index) => (
+                <Cell
+                  key={index}
+                  fill={COLORS[index]}
+                />
+              ))}
+            </Pie>
+
+            <Tooltip />
+            <Legend />
+          </PieChart>
+        </ResponsiveContainer>
+      </div>
+
+      <div className="booking-box">
+        <h2>Bookings</h2>
+
+        {bookings.map((b, i) => (
+          <div className="booking-item" key={i}>
+
+            <div>
+              <h3>Seat {b.seat}</h3>
+              <p>{b.name}</p>
+              <p>{b.phone}</p>
+            </div>
+
+            <button onClick={() => handleDelete(b.seat)}>
               Delete
             </button>
-          </li>
+
+          </div>
         ))}
-      </ul>
+
+      </div>
 
     </div>
   );
