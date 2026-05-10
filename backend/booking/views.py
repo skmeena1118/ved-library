@@ -1,33 +1,77 @@
+import random
+import razorpay
+from django.core.mail import send_mail
+from django.http import JsonResponse
+from .models import Booking, OTP
 from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from .models import Booking
 
+client = razorpay.Client(auth=("YOUR_KEY", "YOUR_SECRET"))
 
+# 📌 Get bookings
 @api_view(['GET'])
 def get_bookings(request):
-    bookings = Booking.objects.all()
-    data = [{"seat": b.seat_number} for b in bookings]
-    return Response(data)
+    data = list(Booking.objects.values())
+    return JsonResponse(data, safe=False)
 
 
+# 📌 Create booking (after payment)
 @api_view(['POST'])
 def create_booking(request):
-    seat = request.data.get('seat')
-    name = request.data.get('name')
-    phone = request.data.get('phone')
+    data = request.data
 
-    if Booking.objects.filter(seat_number=seat).exists():
-        return Response({"error": "Seat already booked"}, status=400)
+    Booking.objects.create(
+        seat=data['seat'],
+        name=data['name'],
+        phone=data['phone'],
+        email=data['email'],
+        paid=True
+    )
 
-    Booking.objects.create(seat_number=seat, name=name, phone=phone)
-    return Response({"message": "Booked successfully"})
+    return JsonResponse({"status": "success"})
 
 
+# 📌 Delete booking
 @api_view(['DELETE'])
 def delete_booking(request, seat):
-    try:
-        booking = Booking.objects.get(seat_number=seat)
-        booking.delete()
-        return Response({"message": "Deleted successfully"})
-    except Booking.DoesNotExist:
-        return Response({"error": "Not found"}, status=404)
+    Booking.objects.filter(seat=seat).delete()
+    return JsonResponse({"deleted": True})
+
+
+# 📌 OTP SEND
+@api_view(['POST'])
+def send_otp(request):
+    email = request.data['email']
+    otp = str(random.randint(100000, 999999))
+
+    OTP.objects.create(email=email, otp=otp)
+
+    send_mail(
+        "Your OTP",
+        f"Your OTP is {otp}",
+        "noreply@ved.com",
+        [email]
+    )
+
+    return JsonResponse({"message": "OTP sent"})
+
+
+# 📌 OTP VERIFY
+@api_view(['POST'])
+def verify_otp(request):
+    email = request.data['email']
+    otp = request.data['otp']
+
+    exists = OTP.objects.filter(email=email, otp=otp).exists()
+
+    return JsonResponse({"verified": exists})
+
+
+# 📌 PAYMENT
+@api_view(['POST'])
+def create_payment(request):
+    order = client.order.create({
+        "amount": 100 * 100,
+        "currency": "INR",
+        "payment_capture": 1
+    })
+    return JsonResponse(order)
