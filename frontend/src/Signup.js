@@ -3,10 +3,11 @@ import axios from "axios";
 
 const API_URL = "http://127.0.0.1:8000";
 
-function Login({ onLogin }) {
+function Signup() {
 
   const [formData, setFormData] = useState({
     username: "",
+    email: "",
     password: "",
   });
 
@@ -14,28 +15,14 @@ function Login({ onLogin }) {
 
     e.preventDefault();
 
-    axios.post(`${API_URL}/api/auth/login/`, formData)
+    axios.post(`${API_URL}/api/auth/register/`, formData)
 
-      .then((res) => {
-
-        localStorage.setItem(
-          "token",
-          res.data.access
-        );
-
-        localStorage.setItem(
-          "username",
-          res.data.username
-        );
-
-        alert("Login successful");
-
-        onLogin();
-
+      .then(() => {
+        alert("Registration successful");
       })
 
       .catch(() => {
-        alert("Invalid credentials");
+        alert("Registration failed");
       });
 
   };
@@ -46,7 +33,7 @@ function Login({ onLogin }) {
 
       <div className="auth-box">
 
-        <h1>Login</h1>
+        <h1>Signup</h1>
 
         <form onSubmit={handleSubmit}>
 
@@ -57,6 +44,17 @@ function Login({ onLogin }) {
               setFormData({
                 ...formData,
                 username: e.target.value,
+              })
+            }
+          />
+
+          <input
+            type="email"
+            placeholder="Email"
+            onChange={(e) =>
+              setFormData({
+                ...formData,
+                email: e.target.value,
               })
             }
           />
@@ -73,7 +71,7 @@ function Login({ onLogin }) {
           />
 
           <button type="submit">
-            Login
+            Signup
           </button>
 
         </form>
@@ -85,4 +83,4 @@ function Login({ onLogin }) {
   );
 }
 
-export default Login;
+export default Signup;

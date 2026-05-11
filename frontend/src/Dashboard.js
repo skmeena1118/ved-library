@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+
 import {
   LineChart,
   Line,
@@ -15,7 +16,10 @@ import "./App.css";
 const API_URL = "https://ved-library.onrender.com";
 
 function Dashboard() {
+
+  const username = localStorage.getItem("username");
   const [bookings, setBookings] = useState([]);
+  const [activePage, setActivePage] = useState("dashboard");
 
   useEffect(() => {
     axios
@@ -61,15 +65,37 @@ function Dashboard() {
       <div className="sidebar">
         <h2 className="logo">Ved Library</h2>
 
-        <ul>
-          <li className="active">Dashboard</li>
-          <li>Bookings</li>
-          <li>Revenue</li>
-          <li>Students</li>
-          <li>Analytics</li>
-          <li>Payments</li>
-          <li>Settings</li>
-        </ul>
+  <ul>
+
+  <li
+    className={activePage === "dashboard" ? "active" : ""}
+    onClick={() => setActivePage("dashboard")}
+  >
+    Dashboard
+  </li>
+
+  <li
+    className={activePage === "bookings" ? "active" : ""}
+    onClick={() => setActivePage("bookings")}
+  >
+    Bookings
+  </li>
+
+  <li
+    className={activePage === "analytics" ? "active" : ""}
+    onClick={() => setActivePage("analytics")}
+  >
+    Analytics
+  </li>
+
+  <li
+    className={activePage === "settings" ? "active" : ""}
+    onClick={() => setActivePage("settings")}
+  >
+    Settings
+  </li>
+
+</ul>
       </div>
 
       {/* Main Content */}
@@ -77,19 +103,28 @@ function Dashboard() {
 
         {/* Topbar */}
         <div className="topbar">
-          <input
-            type="text"
-            placeholder="Search..."
-            className="search-box"
-          />
 
-          <div className="profile">
-            <img
-              src="https://i.pravatar.cc/40"
-              alt="profile"
-            />
-          </div>
-        </div>
+  <input
+    type="text"
+    placeholder="Search..."
+    className="search-box"
+  />
+
+  <div className="profile-info">
+
+    <div>
+      <h3>Welcome</h3>
+      <p>{username}</p>
+    </div>
+
+    <img
+      src="https://i.pravatar.cc/50"
+      alt="profile"
+    />
+
+  </div>
+
+</div>
 
         {/* Cards */}
         <div className="cards-grid">
@@ -132,37 +167,15 @@ function Dashboard() {
 
         </div>
 
-        {/* Bottom */}
-        <div className="bottom-grid">
+        {/* Bookings Page */}
+        {activePage === "bookings" && (
 
           <div className="chart-card">
-            <h2>Seat Analytics</h2>
 
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={pieData}
-                  dataKey="value"
-                  outerRadius={100}
-                  label
-                >
-                  {pieData.map((entry, index) => (
-                    <Cell
-                      key={index}
-                      fill={COLORS[index]}
-                    />
-                  ))}
-                </Pie>
-
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-
-          <div className="booking-card">
-            <h2>Recent Bookings</h2>
+            <h2>All Bookings</h2>
 
             {bookings.map((b, i) => (
+
               <div className="booking-item" key={i}>
 
                 <div>
@@ -176,13 +189,156 @@ function Dashboard() {
                 </button>
 
               </div>
+
             ))}
+
           </div>
 
-        </div>
+        )}
+
+        {/* Analytics Page */}
+        {activePage === "analytics" && (
+
+          <div className="chart-card">
+
+            <h2>Analytics</h2>
+
+            <p>Total Revenue: ₹ {revenue}</p>
+
+            <p>Total Seats: {totalSeats}</p>
+
+            <p>Booked Seats: {bookedSeats}</p>
+
+            <ResponsiveContainer width="100%" height={300}>
+
+              <PieChart>
+
+                <Pie
+                  data={pieData}
+                  dataKey="value"
+                  outerRadius={100}
+                  label
+                >
+
+                  {pieData.map((entry, index) => (
+
+                    <Cell
+                      key={index}
+                      fill={COLORS[index]}
+                    />
+
+                  ))}
+
+                </Pie>
+
+                <Tooltip />
+
+              </PieChart>
+
+            </ResponsiveContainer>
+
+          </div>
+
+        )}
+
+        {/* Settings Page */}
+        {activePage === "settings" && (
+
+          <div className="chart-card">
+
+            <h2>Settings</h2>
+
+            <p>Username: {username}</p>
+
+            <p>Email Notifications: Enabled</p>
+
+            <button className="primary-btn">
+              Save Settings
+            </button>
+
+          </div>
+
+        )}
+
+        {/* Dashboard Home */}
+        {activePage === "dashboard" && (
+
+          <div className="bottom-grid">
+
+            <div className="chart-card">
+
+              <h2>Seat Analytics</h2>
+
+              <ResponsiveContainer width="100%" height={300}>
+
+                <PieChart>
+
+                  <Pie
+                    data={pieData}
+                    dataKey="value"
+                    outerRadius={100}
+                    label
+                  >
+
+                    {pieData.map((entry, index) => (
+
+                      <Cell
+                        key={index}
+                        fill={COLORS[index]}
+                      />
+
+                    ))}
+
+                  </Pie>
+
+                  <Tooltip />
+
+                </PieChart>
+
+              </ResponsiveContainer>
+
+            </div>
+
+            <div className="booking-card">
+
+              <h2>Recent Bookings</h2>
+
+              {bookings.map((b, i) => (
+
+                <div className="booking-item" key={i}>
+
+                  <div>
+
+                    <h3>Seat {b.seat}</h3>
+
+                    <p>{b.name}</p>
+
+                    <span>{b.phone}</span>
+
+                  </div>
+
+                  <button
+                    onClick={() => handleDelete(b.seat)}
+                  >
+                    Delete
+                  </button>
+
+                </div>
+
+              ))}
+
+            </div>
+
+          </div>
+
+        )}
+
       </div>
+
     </div>
+
   );
+
 }
 
 export default Dashboard;

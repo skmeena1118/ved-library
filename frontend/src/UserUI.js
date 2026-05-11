@@ -1,103 +1,156 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-
-const API_URL = "https://ved-library.onrender.com";
+import React, { useState } from "react";
+import "./App.css";
 
 function UserUI() {
 
-  const [seats, setSeats] = useState([]);
   const [selectedSeat, setSelectedSeat] = useState(null);
+
+  const [showForm, setShowForm] = useState(false);
+
+  const [generatedOtp, setGeneratedOtp] = useState("");
+
+  const [enteredOtp, setEnteredOtp] = useState("");
+
+  const [otpSent, setOtpSent] = useState(false);
+
+  const [otpVerified, setOtpVerified] = useState(false);
+
+  const [bookedSeats, setBookedSeats] = useState([]);
 
   const [formData, setFormData] = useState({
     name: "",
-    phone: "",
     email: "",
+    studentId: "",
+    phone: "",
+    file: null,
   });
 
-  useEffect(() => {
+  // Seats 101 → 165
+  const seats = Array.from(
+    { length: 65 },
+    (_, i) => 101 + i
+  );
 
-    axios.get(`${API_URL}/api/bookings/`)
-      .then((res) => {
-
-        const bookedSeats = res.data.map((b) => b.seat);
-
-        const allSeats = Array.from({ length: 100 }, (_, i) => ({
-          id: i + 1,
-          booked: bookedSeats.includes(i + 1),
-        }));
-
-        setSeats(allSeats);
-
-      });
-
-  }, []);
-
+  // Seat click
   const handleSeatClick = (seat) => {
 
-    if (!seat.booked) {
-      setSelectedSeat(seat);
+    if (bookedSeats.includes(seat)) {
+
+      alert("Seat already booked");
+
+      return;
+
+    }
+
+    setSelectedSeat(seat);
+
+    setShowForm(true);
+
+  };
+
+  // Send OTP
+  const sendOtp = () => {
+
+    if (!formData.phone) {
+
+      alert("Please enter mobile number");
+
+      return;
+
+    }
+
+    const otp = Math.floor(
+      1000 + Math.random() * 9000
+    );
+
+    setGeneratedOtp(otp.toString());
+
+    alert(`Your OTP is ${otp}`);
+
+    setOtpSent(true);
+
+  };
+
+  // Verify OTP
+  const verifyOtp = () => {
+
+    if (enteredOtp === generatedOtp) {
+
+      alert("OTP Verified Successfully");
+
+      setOtpVerified(true);
+
+    } else {
+
+      alert("Invalid OTP");
+
     }
 
   };
 
+  // Submit Booking
   const handleSubmit = (e) => {
 
     e.preventDefault();
 
-    axios.post(`${API_URL}/api/book/`, {
+    if (!otpVerified) {
 
-      seat: selectedSeat.id,
-      name: formData.name,
-      phone: formData.phone,
-      email: formData.email,
+      alert("Please verify OTP first");
 
-    })
+      return;
 
-    .then(() => {
+    }
 
-      alert("Seat booked successfully");
+    alert(
+      `Seat ${selectedSeat} booked successfully`
+    );
 
-      setSeats(
-        seats.map((s) =>
-          s.id === selectedSeat.id
-            ? { ...s, booked: true }
-            : s
-        )
-      );
+    setBookedSeats([
+      ...bookedSeats,
+      selectedSeat
+    ]);
 
-      setSelectedSeat(null);
+    setShowForm(false);
 
-      setFormData({
-        name: "",
-        phone: "",
-        email: "",
-      });
+    setOtpSent(false);
 
+    setOtpVerified(false);
+
+    setEnteredOtp("");
+
+    setFormData({
+      name: "",
+      email: "",
+      studentId: "",
+      phone: "",
+      file: null,
     });
 
   };
 
   return (
 
-    <div className="booking-container">
+    <div className="booking-wrapper">
 
       <h1 className="section-title">
-        Choose Your Seat
+        Available Seats
       </h1>
 
-      <div className="seat-grid">
+      <div className="seat-layout">
 
         {seats.map((seat) => (
 
           <div
-            key={seat.id}
-            className={`seat ${
-              seat.booked ? "booked" : "available"
+            key={seat}
+            className={`modern-seat ${
+              bookedSeats.includes(seat)
+                ? "seat-booked"
+                : ""
             }`}
             onClick={() => handleSeatClick(seat)}
           >
 
-            {seat.id}
+            {seat}
 
           </div>
 
@@ -105,57 +158,158 @@ function UserUI() {
 
       </div>
 
-      {selectedSeat && (
+      {/* Popup Form */}
+      {showForm && (
 
-        <div className="booking-form">
+        <div className="popup-overlay">
 
-          <h2>
-            Book Seat {selectedSeat.id}
-          </h2>
+          <div className="popup-form">
 
-          <form onSubmit={handleSubmit}>
+            <h2>
+              Book Seat {selectedSeat}
+            </h2>
 
-            <input
-              type="text"
-              placeholder="Full Name"
-              value={formData.name}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  name: e.target.value,
-                })
-              }
-            />
+            <p>
+              Complete your booking details
+            </p>
 
-            <input
-              type="text"
-              placeholder="Phone Number"
-              value={formData.phone}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  phone: e.target.value,
-                })
-              }
-            />
+            <form onSubmit={handleSubmit}>
 
-            <input
-              type="email"
-              placeholder="Email Address"
-              value={formData.email}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  email: e.target.value,
-                })
-              }
-            />
+              <input
+                type="text"
+                placeholder="Full Name"
+                required
+                value={formData.name}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    name: e.target.value,
+                  })
+                }
+              />
 
-            <button type="submit">
-              Confirm Booking
-            </button>
+              <input
+                type="email"
+                placeholder="Email Address"
+                required
+                value={formData.email}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    email: e.target.value,
+                  })
+                }
+              />
 
-          </form>
+              <input
+                type="text"
+                placeholder="Student ID"
+                required
+                value={formData.studentId}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    studentId: e.target.value,
+                  })
+                }
+              />
+
+              <input
+                type="tel"
+                placeholder="Mobile Number"
+                required
+                value={formData.phone}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    phone: e.target.value,
+                  })
+                }
+              />
+
+              {/* OTP Button */}
+              <button
+                type="button"
+                className="otp-btn"
+                onClick={sendOtp}
+              >
+                Send OTP
+              </button>
+
+              {/* OTP Input */}
+              {otpSent && (
+
+                <>
+
+                  <input
+                    type="text"
+                    placeholder="Enter OTP"
+                    value={enteredOtp}
+                    onChange={(e) =>
+                      setEnteredOtp(
+                        e.target.value
+                      )
+                    }
+                  />
+
+                  <button
+                    type="button"
+                    className="verify-btn"
+                    onClick={verifyOtp}
+                  >
+                    Verify OTP
+                  </button>
+
+                </>
+
+              )}
+
+              {/* File Upload */}
+              <input
+                type="file"
+                required
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    file: e.target.files[0],
+                  })
+                }
+              />
+
+              {/* Success */}
+              {otpVerified && (
+                <p className="otp-success">
+                  OTP Verified Successfully
+                </p>
+              )}
+
+              <div className="popup-buttons">
+
+                <button type="submit">
+                  Confirm Booking
+                </button>
+
+                <button
+                  type="button"
+                  className="cancel-btn"
+                  onClick={() => {
+
+                    setShowForm(false);
+
+                    setOtpSent(false);
+
+                    setOtpVerified(false);
+
+                  }}
+                >
+                  Cancel
+                </button>
+
+              </div>
+
+            </form>
+
+          </div>
 
         </div>
 
